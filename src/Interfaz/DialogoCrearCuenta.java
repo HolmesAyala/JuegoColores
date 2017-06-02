@@ -18,7 +18,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -27,35 +26,42 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class DialogoCrearCuenta extends JDialog{
 
-    private JLabel jlNombre;
+    private JLabel jlNombre;    //  Etiqueta para el nombre
     
-    private JLabel jlContrasena;
+    private JLabel jlContrasena;    //  Etiqueta para la contraseña
     
-    private JLabel jlfoto;
+    private JLabel jlfoto;  //  Etiqueta para la foto
     
-    private JTextField txtNombre;
+    private JTextField txtNombre;   //  Caja de texto para el nombre
     
-    private JPasswordField txtContrasena;
+    private JPasswordField txtContrasena;   //  Caja de texto para la contraseña
     
-    private JButton btnRegistrar;
+    private JButton btnRegistrar;   //  Boton para habilitar el registro
     
-    private JButton btnFoto;
+    private JButton btnFoto;    //  Boton para habilitar la carga de la foto
     
-    private Ventana ventana;
+    private Ventana ventana;    // Objeto de la clase ventana
     
-    private FileNameExtensionFilter filtro;
+    private FileNameExtensionFilter filtro; //  Filtro para la busqueda de fotos
     
-    private String rutaImagen;
+    private String rutaImagen;  //  Ruta de la imagen del usuario
     
-    private File archivoImagen;
+    private File archivoImagen; //  Archivo que guarda la imagen
     
-    private JFileChooser ventanaImagen;
+    private JFileChooser ventanaImagen; //  Selector de archivos
     
+    /**
+     * Constructor
+     * @param ventana 
+     */
     public DialogoCrearCuenta(Ventana ventana) {
         this.ventana = ventana;
         configurar();
     }
     
+    /**
+     * Configuracion de la ventana
+     */
     public void configurar(){
         setTitle("Crear cuenta");
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -67,6 +73,9 @@ public class DialogoCrearCuenta extends JDialog{
         agregar();
     }
     
+    /**
+     * Agregar elementos a la ventana
+     */
     public void agregar(){
         Font letra = new  Font("Microsoft Sans Serif", Font.PLAIN, 25);
         
@@ -114,6 +123,9 @@ public class DialogoCrearCuenta extends JDialog{
         add(btnRegistrar);
     }
     
+    /**
+     * Clase que esta a la escucha de los botones
+     */
     class EscucharBoton implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent evento) {
@@ -122,6 +134,7 @@ public class DialogoCrearCuenta extends JDialog{
                 if(validarDatos()){
                     Jugador jugador = new Jugador(txtNombre.getText().trim(), String.valueOf(txtContrasena.getPassword()), rutaImagen, 1);
                     ventana.getJugadores().add(jugador);
+                    ventana.escribirJugadores();
                     setVisible(false);
                     //  Limpiar dialogo
                     txtNombre.setText("");
@@ -155,6 +168,10 @@ public class DialogoCrearCuenta extends JDialog{
         
     }
     
+    /**
+     * Metodo para validar los datos
+     * @return 
+     */
     public boolean validarDatos(){
         jlNombre.setForeground(Color.BLACK);
         jlContrasena.setForeground(Color.BLACK);
@@ -195,7 +212,7 @@ public class DialogoCrearCuenta extends JDialog{
         }
         //  Validar Contraseña
         String contrasena = ""+String.valueOf(txtContrasena.getPassword());
-        System.out.println(contrasena+"\n");
+        //System.out.println(contrasena+"\n");
         if(contrasena.length() < 5){
             errores += "- La contraseña debe ser de almenos 5 caracteres\n";
             validar = false;
@@ -206,6 +223,14 @@ public class DialogoCrearCuenta extends JDialog{
             validar = false;
             jlContrasena.setForeground(Color.RED);
         }
+        else{
+            for(int i = 0; i < contrasena.length(); i++){
+                if(contrasena.charAt(i) == ';'){
+                    errores += "- La contraseña no puede tener el caracter ';'\n";
+                    validar = false;
+                }
+            }
+        }
         
         if(!errores.equals("")){
             JOptionPane.showMessageDialog(null, errores, "Aviso!", JOptionPane.WARNING_MESSAGE);
@@ -214,6 +239,11 @@ public class DialogoCrearCuenta extends JDialog{
         return validar;
     }
     
+    /**
+     * Metodo para ver si solo hay letras en un string
+     * @param texto
+     * @return 
+     */
     public boolean soloLetras(String texto){
         for(int i = 0; i < texto.length(); i++){
             if(texto.charAt(i) < 'A' || texto.charAt(i) > 'z' || (texto.charAt(i) > 'Z' && texto.charAt(i) < 'a')){
@@ -223,6 +253,13 @@ public class DialogoCrearCuenta extends JDialog{
         return true;
     }
     
+    /**
+     * Metodo para crear un icono y adecuarlo a un label
+     * @param ruta
+     * @param ancho
+     * @param alto
+     * @return 
+     */
     public Icon crearIcono(String ruta, int ancho, int alto){
         ImageIcon imagen = new ImageIcon(ruta);
         Icon icono = new ImageIcon(imagen.getImage().getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));

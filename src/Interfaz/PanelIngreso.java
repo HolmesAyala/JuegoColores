@@ -18,24 +18,28 @@ import javax.swing.JTextField;
  */
 public class PanelIngreso extends JPanel{
     
-    private JLabel jlNombre;
+    private JLabel jlNombre;    //  Etiqueta para el nombre
     
-    private JLabel jlContrasena;
+    private JLabel jlContrasena;  //  Etiqueta para la contraseña
     
-    private JTextField txtNombre;
+    private JTextField txtNombre;   //  Texto para el nombre
     
-    private JPasswordField txtContrasena;
+    private JPasswordField txtContrasena;   //Texto para la contraseña
     
-    private JButton btnIngresar;
+    private JButton btnIngresar;    //  Boton para habilitar el ingreso
     
-    private JButton btnRegistrarse;
+    private JButton btnRegistrarse; //  Boton para habilitar el registro
 
-    private Ventana ventana;
+    private Ventana ventana;    //  Objeto de la clase ventana
     
-    private DialogoCrearCuenta dialogoCrearCuenta;
+    private DialogoCrearCuenta dialogoCrearCuenta;  //  Objeto del dialogo para crear una cuenta
     
-    private VentanaJuego ventanaJuego;
+    private VentanaJuego ventanaJuego;  //  Objeto de la ventana de juego
     
+    /**
+     * Constructor
+     * @param ventana 
+     */
     public PanelIngreso(Ventana ventana) {
         
         this.ventana = ventana;
@@ -43,12 +47,18 @@ public class PanelIngreso extends JPanel{
         configurar();
     }
     
+    /**
+     * Configurar el panel
+     */
     public void configurar(){
         setLayout(null);
         setBackground(Color.WHITE);
         agregar();
     }
     
+    /**
+     * Agregar elementos a el panel
+     */
     public void agregar(){
         Font letra = new Font("Microsoft Sans Serif", Font.PLAIN, 30);
         
@@ -88,18 +98,28 @@ public class PanelIngreso extends JPanel{
         add(btnRegistrarse);
     }
     
+    /**
+     * Clase para escuchar los botones
+     */
     class EscucharBoton implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent evento) {
             if(evento.getActionCommand().equals("Ingresar")){
                 System.out.println("Ingresar");
                 if(validarIngreso()){
-                    ventana.setVisible(false);
                     for(int i = 0; i < ventana.getJugadores().size(); i++){
                         if(ventana.getJugadores().get(i).getNombre().equals(txtNombre.getText().trim())){
-                            ventanaJuego = new VentanaJuego(ventana.getJugadores().get(i));
-                            ventanaJuego.setVisible(true);
-                            break;
+                            if(ventana.getJugadores().get(i).getNivelActual() == 4){
+                                int puntajeTotal = ventana.getJugadores().get(i).getPuntajes()[0] + ventana.getJugadores().get(i).getPuntajes()[1] + ventana.getJugadores().get(i).getPuntajes()[2];
+                                JOptionPane.showMessageDialog(null, ventana.getJugadores().get(i).getNombre()+", Ya ha pasado todos los niveles! \nSu record es de: "+puntajeTotal, "Juego Colores", JOptionPane.INFORMATION_MESSAGE);
+                            }
+                            else{
+                                ventana.setVisible(false);
+                                ventanaJuego = new VentanaJuego(ventana.getJugadores().get(i), ventana);
+                                ventanaJuego.setVisible(true);
+                                break;
+                            }
+                            
                         }
                     }
                     
@@ -116,6 +136,10 @@ public class PanelIngreso extends JPanel{
         }
     }
     
+    /**
+     * Validar los datos para el ingreso
+     * @return 
+     */
     public boolean validarIngreso(){
         jlNombre.setForeground(Color.BLACK);
         jlContrasena.setForeground(Color.BLACK);

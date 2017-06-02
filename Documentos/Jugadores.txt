@@ -1,0 +1,4 @@
+holmes;12345;C:\Users\Cuchurrumi\Pictures\bichito.jpg;4;325;760;950;*
+Leidy;12345;Imagenes/AgregarImagen.png;4;325;835;1075;*
+Anggy;123456789;C:\Users\Public\Pictures\Sample Pictures\Hydrangeas.jpg;1;0;0;0;*
+Leo;12345;Imagenes/AgregarImagen.png;1;0;0;0;*

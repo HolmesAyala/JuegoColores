@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -24,28 +25,41 @@ import javax.swing.JPanel;
  */
 public class PanelJuego extends JPanel{
     
-    //private List<Casilla> casillas;
+    private Map<String, Casilla> casillas;  //  Mapa con las casillas del juego
     
-    private Map<String, Casilla> casillas;
+    private GridLayout grilla;  //  Disposicion del panel
     
-    private GridLayout grilla;
+    private String cabezas; //  Guarda la configuracion de casillas
     
-    private String cabezas;
+    private Map<String, Color> colores; //  Mapa con los colores disponibles
     
-    private Map<String, Color> colores;
+    private Color colorActual;  //  Color actual, (el que va a ir pintando)
     
-    private Color colorActual;
+    private Jugador jugador;    //  Objeto de la clase jugador
     
-    private Jugador jugador;
+    private List<String> camino;    //  Guarda el camino de un color
     
-    private List<String> camino;
+    private VentanaJuego ventanaJuego;  //  Objeto de la ventana del juego
+    
+    private Ventana ventana;    //  Objeto de la ventana de ingreso
 
-    public PanelJuego(Jugador jugador) {
+    /**
+     * Constructor
+     * @param jugador
+     * @param ventanaJuego
+     * @param ventana 
+     */
+    public PanelJuego(Jugador jugador, VentanaJuego ventanaJuego, Ventana ventana) {
+        this.ventana = ventana;
+        this.ventanaJuego = ventanaJuego;
         this.jugador = jugador;
         configurar();
         agregar();
     }
     
+    /**
+     * Configurar el panel
+     */
     public void configurar(){
         setBackground(Color.WHITE);
         if(jugador.getNivelActual() == 1){
@@ -66,23 +80,25 @@ public class PanelJuego extends JPanel{
         setSize(750, 750);
     }
     
+    /**
+     * Agregar elementos a el panel
+     */
     public void agregar(){
         crearColores();
         colorActual = Color.WHITE;
         
-        //casillas = new ArrayList<>();
         casillas = new HashMap<String, Casilla>();
         camino = new ArrayList<String>();
         
         EscucharBoton escucharBoton = new EscucharBoton();
         EscucharMouse escucharMouse = new EscucharMouse();
         
-        setName("panel");
-        addMouseListener(escucharMouse);
+        //setName("panel");
+        //addMouseListener(escucharMouse);
         
         for(int i = 0; i < grilla.getRows()*grilla.getColumns(); i++){
             JButton boton = new JButton();
-            boton.setName("Boton "+(i+1));
+            boton.setName(""+(i+1));
             boton.addActionListener(escucharBoton);
             boton.addMouseListener(escucharMouse);
             boton.setBackground(Color.WHITE);
@@ -105,18 +121,30 @@ public class PanelJuego extends JPanel{
         }
     }
     
+    /**
+     * Configuracion del primer nivel
+     */
     public void nivel1(){
         cabezas = "1202300000403500001000045";
     }
     
+    /**
+     * Configuracion del segundo nivel
+     */
     public void nivel2(){
         cabezas = "0000000001203000403505000000004016002006000000000";
     }
     
+    /**
+     * Configuracion del tercer nivel
+     */
     public void nivel3(){
         cabezas = "000000000000000000003002010004000020000000000080100005000000840070000070360650000";
     }
     
+    /**
+     * Metodo para crear los colores
+     */
     public void crearColores(){
         int nivel = jugador.getNivelActual();
         colores = new HashMap<String, Color>();
@@ -137,6 +165,9 @@ public class PanelJuego extends JPanel{
         
     }
     
+    /**
+     * Clase que esta a la escucha de los botones
+     */
     class EscucharBoton implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent evento) {
@@ -145,6 +176,9 @@ public class PanelJuego extends JPanel{
         
     }
     
+    /**
+     * Clase que esta a la escucha de los eventos del mouse sobre los botones
+     */
     class EscucharMouse implements MouseListener{
         @Override
         public void mouseClicked(MouseEvent evento) {
@@ -160,21 +194,20 @@ public class PanelJuego extends JPanel{
 
         @Override
         public void mouseEntered(MouseEvent evento) {
-            if(!evento.getComponent().getName().equals("panel")){
-               logicaPintado(evento);
-            }
-            
+            logicaPintado(evento);
         }
 
         @Override
         public void mouseExited(MouseEvent evento) {
-            if(evento.getComponent().getName().equals("panel")){
-                System.out.println("Sali del panel");
-            }
+            
         }
         
     }
     
+    /**
+     * Metodo que hace la logica de pintado de las casillas
+     * @param evento 
+     */
     public void logicaPintado(MouseEvent evento){
         //  Si la casilla es cabeza
         if(casillas.get(evento.getComponent().getName()).isCabeza()){
@@ -182,12 +215,19 @@ public class PanelJuego extends JPanel{
             if(!casillas.get(evento.getComponent().getName()).getColor().equals(colorActual)){
                 //  Si la casilla no tiene el camino completo cambie el color actual
                 if(!casillas.get(evento.getComponent().getName()).isCaminoCompleto()){
+                    
+                    resetearCasillas(colorActual);
+                    
                     colorActual = casillas.get(evento.getComponent().getName()).getColor();
                     resetearCasillas(casillas.get(evento.getComponent().getName()).getColor());
                     camino.clear();
                     agregarCamino(evento.getComponent().getName());
                 }
                 else{
+                    
+                    resetearCasillas(colorActual);
+                    
+                    //  Si la casilla tiene el camino completo
                     colorActual = Color.WHITE;
                 }
             }
@@ -201,8 +241,20 @@ public class PanelJuego extends JPanel{
                 }
                 else{
                     //  Si no es la cabeza de inicio, osea la final
-                    caminoCompletado(casillas.get(evento.getComponent().getName()).getColor(), true);
-                    camino.clear();
+                    //  Si la casilla de cabeza es valida
+                    if(validarCasilla(evento)){
+                        caminoCompletado(casillas.get(evento.getComponent().getName()).getColor(), true);
+                        camino.clear();
+                        //  Si gano
+                        gano();
+                    }
+                    else{
+                        //  Si a la casilla que llego no es valida
+                        resetearCasillas(colorActual);
+                        camino.clear();
+                        colorActual = Color.WHITE;
+                    }
+                    
                 }
             }
             
@@ -220,12 +272,24 @@ public class PanelJuego extends JPanel{
                         agregarCamino(evento.getComponent().getName());
                     }
                     else{
+                        //  Si la casilla encontrada es igual al color actual
                         retroceder(evento.getComponent().getName());
                     }
                 }
                 else{
                     //  Si la casilla es de color blanco
-                    agregarCamino(evento.getComponent().getName());
+                    //  Si la casilla a la que llego es valida
+                    if(validarCasilla(evento)){
+                        //System.out.println("La casilla a la que llego, es valida");
+                        agregarCamino(evento.getComponent().getName());
+                    }
+                    else{
+                        //  Si la casilla a la que llego no es valida
+                        resetearCasillas(colorActual);
+                        camino.clear();
+                        colorActual = Color.WHITE;
+                    }
+                    
                 }
             }
         }
@@ -235,14 +299,94 @@ public class PanelJuego extends JPanel{
         }
     }
     
+    /**
+     * Metodo para verificar si el usuario ya gano
+     */
+    public void gano(){
+        boolean validar = true;
+        
+        Iterator iterador = casillas.entrySet().iterator();
+        while(iterador.hasNext()){
+            Map.Entry auxiliar = (Map.Entry)iterador.next();
+            if(!casillas.get(auxiliar.getKey()).isCaminoCompleto() && casillas.get(auxiliar.getKey()).isCabeza()){
+                validar = false;
+            }
+        }
+        
+        if(validar){
+            
+            ventanaJuego.getPanelInformacion().getHiloCronometro().setContinuar(false);
+            JOptionPane.showMessageDialog(null, "Muy Bien! Paso el nivel "+jugador.getNivelActual()+ ", Puntaje obtenido: "+ventanaJuego.getPanelInformacion().getJlPuntaje().getText(), "Juego Colores", JOptionPane.INFORMATION_MESSAGE);
+            jugador.getPuntajes()[jugador.getNivelActual()-1] = Integer.valueOf(ventanaJuego.getPanelInformacion().getJlPuntaje().getText());
+            int nivel = jugador.getNivelActual();
+            if(nivel == 3){
+                int puntajeTotal = jugador.getPuntajes()[0] + jugador.getPuntajes()[1] + jugador.getPuntajes()[2];
+                JOptionPane.showMessageDialog(null, jugador.getNombre()+", Ya ha pasado todos los niveles! \nSu puntaje total fue: "+puntajeTotal, "Juego Colores", JOptionPane.INFORMATION_MESSAGE);
+                ventana.setVisible(true);
+                ventanaJuego.setVisible(false);
+                jugador.setNivelActual(nivel+1);
+                ventana.escribirJugadores();
+            }
+            else{
+                jugador.getPuntajes()[jugador.getNivelActual()-1] = Integer.valueOf(ventanaJuego.getPanelInformacion().getJlPuntaje().getText());
+                jugador.setNivelActual(nivel+1);
+                ventana.escribirJugadores();
+                eliminarCasillas();
+                configurar();
+                agregar();
+                ventanaJuego.getPanelInformacion().iniciarCronometro();
+            }
+            
+            
+        }
+        
+    }
+    
+    /**
+     * Metodo para validar si la casilla es valida
+     * @param evento
+     * @return 
+     */
+    public boolean validarCasilla(MouseEvent evento){
+        int botonAnalizar = Integer.valueOf(evento.getComponent().getName());
+        int botonCamino = Integer.valueOf(camino.get(camino.size()-1));
+        
+        //System.out.println("Botones analizados: "+botonAnalizar+"--"+botonCamino);
+        
+        if(botonAnalizar + 1 == botonCamino){
+            return true;
+        }
+        else if(botonAnalizar - 1 == botonCamino){
+            return true;
+        }
+        else if(botonAnalizar + grilla.getRows() == botonCamino){
+            return true;
+        }
+        else if(botonAnalizar - grilla.getRows() == botonCamino){
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Metodo para agregar elementos al camino
+     * @param casilla 
+     */
     public void agregarCamino(String casilla){
         camino.add(casilla);
-        System.out.println("Camino:");
+        //System.out.println("Camino:");
+        /*
         for(int i = 0; i < camino.size(); i++){
             System.out.println(camino.get(i));
         }
+        */
     }
     
+    /**
+     * Metodo para retroceder en el camino
+     * @param casilla 
+     */
     public void retroceder(String casilla){
         while(!camino.get(camino.size()-1).equals(casilla)){
             
@@ -260,6 +404,11 @@ public class PanelJuego extends JPanel{
         }
     }
     
+    /**
+     * Metodo para cambiar el estado del camino de las cabezas
+     * @param color
+     * @param estado 
+     */
     public void caminoCompletado(Color color, boolean estado){
         Iterator iterador = casillas.entrySet().iterator();
         while(iterador.hasNext()){
@@ -271,6 +420,10 @@ public class PanelJuego extends JPanel{
         }
     }
     
+    /**
+     * Metodo para resetear el color de las casillas
+     * @param color 
+     */
     public void resetearCasillas(Color color){
         Iterator iterador = casillas.entrySet().iterator();
         while(iterador.hasNext()){
@@ -284,4 +437,15 @@ public class PanelJuego extends JPanel{
         }
     }
     
+    /**
+     * Metodo para remover los botones del panel
+     */
+    public void eliminarCasillas(){
+        Iterator iterador = casillas.entrySet().iterator();
+        while(iterador.hasNext()){
+            Map.Entry auxiliar = (Map.Entry)iterador.next();
+            remove(casillas.get(auxiliar.getKey()).getBoton());
+        }
+        casillas.clear();
+    }
 }

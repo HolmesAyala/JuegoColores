@@ -11,17 +11,28 @@ import javax.swing.JFrame;
  */
 public class VentanaJuego extends JFrame{
 
-    private PanelJuego panelJuego;
+    private PanelJuego panelJuego;  //  Panel del juego
     
-    private PanelInformacion panelInformacion;
+    private PanelInformacion panelInformacion;  //  Panel que contiene la informacion
     
-    private Jugador jugador;
+    private Jugador jugador;    //  Objeto de la clase jugador
     
-    public VentanaJuego(Jugador jugador) {
+    private Ventana ventana;    //  Objeto de la clase ventana
+    
+    /**
+     * Constructor
+     * @param jugador
+     * @param ventana 
+     */
+    public VentanaJuego(Jugador jugador, Ventana ventana) {
         this.jugador = jugador;
+        this.ventana = ventana;
         configurar();
     }
     
+    /**
+     * Configurar ventana
+     */
     public void configurar(){
         setSize(1100, 800);
         setLocationRelativeTo(null);
@@ -32,8 +43,11 @@ public class VentanaJuego extends JFrame{
         agregar();
     }
     
+    /**
+     * Agregar elementos a la ventana
+     */
     public void agregar(){
-        panelJuego = new PanelJuego(jugador);
+        panelJuego = new PanelJuego(jugador, this, ventana);
         panelJuego.setLocation(25, 10);
         add(panelJuego);
         
@@ -42,18 +56,34 @@ public class VentanaJuego extends JFrame{
         add(panelInformacion);
     }
 
+    /**
+     * Obtener el panel del juego
+     * @return 
+     */
     public PanelJuego getPanelJuego() {
         return panelJuego;
     }
 
+    /**
+     * Cambiar el panel del juego
+     * @param panelJuego 
+     */
     public void setPanelJuego(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
     }
 
+    /**
+     * Obtener el panel de informacion
+     * @return 
+     */
     public PanelInformacion getPanelInformacion() {
         return panelInformacion;
     }
 
+    /**
+     * Cambiar el panel de informacion
+     * @param panelInformacion 
+     */
     public void setPanelInformacion(PanelInformacion panelInformacion) {
         this.panelInformacion = panelInformacion;
     }

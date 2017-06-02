@@ -17,20 +17,27 @@ import javax.swing.JPanel;
  */
 public class PanelInformacion extends JPanel{
     
-    private JLabel jlNombre;
+    private JLabel jlNombre;    //  Etiqueta para el nombre
     
-    private JLabel jlFoto;
+    private JLabel jlFoto;  //  Etiqueta para la foto
     
-    private JLabel jlCronometro;
+    private JLabel jlTxtPuntaje;    //  Etiqueta para el puntaje
     
-    private JLabel jlPuntaje;
+    private JLabel jlCronometro;    //  Etiqueta para el cronometro
     
-    private Jugador jugador;
+    private JLabel jlPuntaje;   //  Etiqueta para el puntaje
     
-    private HiloCronometro hiloCronometro;
+    private Jugador jugador;    //  Objeto de la clase Jugador
     
-    private VentanaJuego ventanaJuego;
+    private HiloCronometro hiloCronometro;  //  Hilo del cronometro
+    
+    private VentanaJuego ventanaJuego;  //  Objeto de la clase de la ventana del juego
 
+    /**
+     * Contructor
+     * @param jugador
+     * @param ventanaJuego 
+     */
     public PanelInformacion(Jugador jugador, VentanaJuego ventanaJuego) {
         this.ventanaJuego = ventanaJuego;
         this.jugador = jugador;
@@ -38,12 +45,18 @@ public class PanelInformacion extends JPanel{
         agregar();
     }
     
+    /**
+     * Configurar el panel
+     */
     public void configurar(){
         setBackground(Color.WHITE);
         setLayout(null);
         setSize(300, 750);
     }
     
+    /**
+     * Agregar elementos a el panel
+     */
     public void agregar(){
         Font fuente = new Font("Microsoft Sans Serif", Font.PLAIN, 20);
         
@@ -63,28 +76,104 @@ public class PanelInformacion extends JPanel{
         jlCronometro.setFont(fuente);
         add(jlCronometro);
         
-        jlPuntaje = new JLabel("Puntaje: 0");
-        jlPuntaje.setBounds(50, 330, 200, 30);
+        jlTxtPuntaje = new JLabel("Puntaje:");
+        jlTxtPuntaje.setBounds(50, 330, 150, 30);
+        jlTxtPuntaje.setFont(fuente);
+        add(jlTxtPuntaje);
+        
+        jlPuntaje = new JLabel("0");
+        jlPuntaje.setBounds(150, 330, 200, 30);
         jlPuntaje.setFont(fuente);
         add(jlPuntaje);
         
-        hiloCronometro = new HiloCronometro(ventanaJuego);
-        hiloCronometro.start();
+         iniciarCronometro();
+         iniciarPuntaje();
         
     }
     
+    /**
+     * Metodo para crear un icono y adecuarlo a un label
+     * @param ruta
+     * @param ancho
+     * @param alto
+     * @return 
+     */
     public Icon crearIcono(String ruta, int ancho, int alto){
         ImageIcon imagen = new ImageIcon(ruta);
         Icon icono = new ImageIcon(imagen.getImage().getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
         return icono;
     }
+    
+    /**
+     * Metodo para iniciar la base del puntaje
+     */
+    public void iniciarPuntaje(){
+        if(jugador.getNivelActual() == 1){
+            jlPuntaje.setText("500");
+        }
+        else if(jugador.getNivelActual() == 2){
+            jlPuntaje.setText("1000");
+        }
+        else if(jugador.getNivelActual() == 3){
+            jlPuntaje.setText("1500");
+        }
+        
+    }
 
+    /**
+     * Metodo para iniciar el hilo del cronometro
+     */
+    public void iniciarCronometro(){
+        hiloCronometro = new HiloCronometro(ventanaJuego, jugador);
+        hiloCronometro.start();
+    }
+    
+    /**
+     * Obtener la etiqueta del cronometro
+     * @return 
+     */
     public JLabel getJlCronometro() {
         return jlCronometro;
     }
 
+    /**
+     * Cambiar la etiqueta del cronometro
+     * @param jlCronometro 
+     */
     public void setJlCronometro(JLabel jlCronometro) {
         this.jlCronometro = jlCronometro;
+    }
+
+    /**
+     * Obtener la etiqueta del puntaje
+     * @return 
+     */
+    public JLabel getJlPuntaje() {
+        return jlPuntaje;
+    }
+
+    /**
+     * Cambiar la etiqueta del puntaje
+     * @param jlPuntaje 
+     */
+    public void setJlPuntaje(JLabel jlPuntaje) {
+        this.jlPuntaje = jlPuntaje;
+    }
+
+    /**
+     * Obtener el hilo del cronometro
+     * @return 
+     */
+    public HiloCronometro getHiloCronometro() {
+        return hiloCronometro;
+    }
+
+    /**
+     * Cambiar el hilo del cronometro
+     * @param hiloCronometro 
+     */
+    public void setHiloCronometro(HiloCronometro hiloCronometro) {
+        this.hiloCronometro = hiloCronometro;
     }
     
 }

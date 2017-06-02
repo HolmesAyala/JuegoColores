@@ -10,26 +10,53 @@ import java.util.Date;
  */
 public class HiloCronometro extends Thread{
     
-    private VentanaJuego ventanaJuego;
+    private VentanaJuego ventanaJuego;  //  Objeto de la ventana de juego
     
-    private char seg2 = '0', seg1 = '0';
+    private char seg2 = '0', seg1 = '0';    //  Segundos de cronometro
     
-    private char min2 = '0', min1 = '0';
+    private char min2 = '0', min1 = '0';    //  minutos de cronometro
     
-    private Date actual;
+    private Date actual;    //  Se actualiza para tener la fecha actual
     
-    private Date retardo;
+    private Date retardo;   //  Retardo de 1 segundo
     
-    private String tiempo;
+    private String tiempo;  //  tiempo transcurrido del cronometro
     
-    private boolean continuar;
+    private boolean continuar;  //  Habilitar la ejecucion del hilo
+    
+    private Jugador jugador;    // objeto de la clase jugador
+    
+    private int puntaje;    //  Puntaje que lleva el jugador
+    
+    private int resta;  //  Puntaje que se va restando
 
-    public HiloCronometro(VentanaJuego ventanaJuego) {
+    /**
+     * Constructor
+     * @param ventanaJuego
+     * @param jugador 
+     */
+    public HiloCronometro(VentanaJuego ventanaJuego, Jugador jugador) {
+        this.jugador = jugador;
         this.ventanaJuego = ventanaJuego;
     }
     
+    /**
+     * Metodo que le da vida a el hilo
+     */
     @Override
     public void run(){
+        if(jugador.getNivelActual() == 1){
+            puntaje = 500;
+            resta = 25;
+        }
+        else if(jugador.getNivelActual() == 2){
+            puntaje = 1000;
+            resta = 15;
+        }
+        else if(jugador.getNivelActual() == 3){
+            puntaje = 1500;
+            resta = 25;
+        }
         
         actual = new Date();
         retardo = new Date();
@@ -63,16 +90,26 @@ public class HiloCronometro extends Thread{
 
                 tiempo = "Tiempo: "+min2+min1+":"+seg2+seg1;
                 ventanaJuego.getPanelInformacion().getJlCronometro().setText(tiempo);
+                puntaje = puntaje - resta;
+                ventanaJuego.getPanelInformacion().getJlPuntaje().setText(""+puntaje);
             }
             
         }
         
     }
 
+    /**
+     * Obtener el estado de continuar
+     * @return 
+     */
     public boolean isContinuar() {
         return continuar;
     }
 
+    /**
+     * Cambiar el estado de continuar
+     * @param continuar 
+     */
     public void setContinuar(boolean continuar) {
         this.continuar = continuar;
     }
